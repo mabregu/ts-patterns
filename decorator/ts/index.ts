@@ -1,41 +1,99 @@
 interface IComponent {
-    operation(): void;
+    getDescrition(): string;
 }
 
-class Component implements IComponent {
-    public operation(): void {
-        console.log('Component operation');
+class Coffee implements IComponent {
+    protected description: string;
+    
+    constructor(description: string) {
+        this.description = description;
+    }
+
+    public getDescrition(): string {
+        return this.description;
     }
 }
 
-abstract class Decorator implements IComponent {
-    protected component: IComponent;
+abstract class CoffeeDecorator implements IComponent {
+    protected decoratedCoffee: IComponent;
 
-    constructor(component: IComponent) {
-        this.component = component;
+    constructor(decoratedCoffee: IComponent) {
+        this.decoratedCoffee = decoratedCoffee;
     }
 
-    public operation(): void {
-        this.component.operation();
-    }
-}
-
-class ConcreteDecoratorA extends Decorator {
-    public operation(): void {
-        super.operation();
-        console.log('ConcreteDecoratorA operation');
+    public getDescrition(): string {
+        return this.decoratedCoffee.getDescrition();
     }
 }
 
-class ConcreteDecoratorB extends Decorator {
-    public operation(): void {
-        super.operation();
-        console.log('ConcreteDecoratorB operation');
+class Milk extends CoffeeDecorator {
+    constructor(coffee: IComponent) {
+        super(coffee);
+    }
+
+    public getDescrition(): string {
+        return super.getDescrition() + ', Milk';
     }
 }
 
-const component = new Component();
-const decoratorA = new ConcreteDecoratorA(component);
-const decoratorB = new ConcreteDecoratorB(decoratorA);
+class CommercialInfoDecorator extends CoffeeDecorator {
+    private tradename: string;
+    private brand: string;
 
-decoratorB.operation();
+    constructor(coffee: IComponent, tradename: string, brand: string) {
+        super(coffee);
+        this.tradename = tradename;
+        this.brand = brand;
+    }
+
+    public getDescrition(): string {
+        return super.getDescrition() + `, ${this.tradename}, ${this.brand}`;
+    }
+}
+
+class StoreCoffeeDecorator extends CoffeeDecorator {
+    private price: number;
+    
+    constructor(coffee: IComponent, price: number) {
+        super(coffee);
+        this.price = price;
+    }
+    
+    public getDescrition(): string {
+        return super.getDescrition() + `, $${this.price}`;
+    }
+}
+
+class HTMLCoffeeDecorator extends CoffeeDecorator {
+    constructor(coffee: IComponent) {
+        super(coffee);
+    }
+
+    public getDescrition(): string {
+        return `<h1>Product</h1>
+            <p>${super.getDescrition()}</p>
+        `;
+    }
+}
+    
+    
+
+const coffee = new Coffee('Coffee');
+const coffeeWithMilk = new Milk(coffee);
+const coffeeWithMilkAndCommercialInfo = new CommercialInfoDecorator(coffeeWithMilk, 'Nescafe', 'Nestle');
+
+console.log(coffee.getDescrition());
+console.log(coffeeWithMilk.getDescrition());
+console.log(coffeeWithMilkAndCommercialInfo.getDescrition());
+
+const storeCoffee = new StoreCoffeeDecorator(coffee, 1.5);
+console.log(storeCoffee.getDescrition());
+
+const storeCoffeeWithMilk = new StoreCoffeeDecorator(coffeeWithMilk, 1.5);
+console.log(storeCoffeeWithMilk.getDescrition());
+
+const storeCoffeeWithMilkAndCommercialInfo = new StoreCoffeeDecorator(coffeeWithMilkAndCommercialInfo, 1.5);
+console.log(storeCoffeeWithMilkAndCommercialInfo.getDescrition());
+
+const htmlCoffee = new HTMLCoffeeDecorator(storeCoffeeWithMilkAndCommercialInfo);
+console.log(htmlCoffee.getDescrition());
