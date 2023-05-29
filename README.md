@@ -6,3 +6,4 @@
     * singleton
     * strategy
     * observer
+    * builder
